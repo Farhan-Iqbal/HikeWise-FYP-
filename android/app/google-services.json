@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1082322611898",
+    "project_id": "hikewise-87f94",
+    "storage_bucket": "hikewise-87f94.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1082322611898:android:103afb9d45147012fe5c83",
+        "android_client_info": {
+          "package_name": "com.example.hikewise"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1082322611898-71nkeoda9b1se4gjbeontcd8abnekr8i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.hikewise",
+            "certificate_hash": "da5ac82a3f335e4e06ee0cd943d19743bc7c33d3"
+          }
+        },
+        {
+          "client_id": "1082322611898-2u0jjirdj549dpqh5m5uslmdgk44gtbl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBahzMPApv4Co-3RpmOyLaKXVOaBWLQADs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1082322611898-2u0jjirdj549dpqh5m5uslmdgk44gtbl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
