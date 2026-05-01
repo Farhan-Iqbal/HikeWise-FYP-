@@ -11,7 +11,7 @@ void main() async {
   // Initialize Supabase with your project credentials
   await Supabase.initialize(
     url: 'https://lwkgsofcmfjdkdfabxnn.supabase.co',
-    anonKey: 'sb_publishable_LpXacEgbClKaTlL9LGzm5w_j-WB34wu',
+    anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3a2dzb2ZjbWZqZGtkZmFieG5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNjA1MjksImV4cCI6MjA5MjgzNjUyOX0.95AnVOTybQpwOuE1vwA0bCs6B-IMYJFrZRBUo0BcqAM',
   );
 
   runApp(const HikeWiseApp());
