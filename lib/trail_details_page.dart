@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'map_screen.dart';
+import 'models/trail_model.dart'; // Ensure this path is correct
 
 class TrailDetailsPage extends StatelessWidget {
-  const TrailDetailsPage({super.key});
+  final Trail trail; // This captures the trail passed from HomePage
+
+  const TrailDetailsPage({super.key, required this.trail});
 
   @override
   Widget build(BuildContext context) {
@@ -13,8 +16,19 @@ class TrailDetailsPage extends StatelessWidget {
             expandedHeight: 250,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
-              title: const Text("Bukit Besar", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              background: Container(color: Colors.grey[400], child: const Icon(Icons.image, size: 50, color: Colors.white)),
+              title: Text(
+                trail.name, 
+                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+              ),
+              background: Hero(
+                tag: 'trail-image-${trail.id}',
+                child: trail.imageUrl != null
+                    ? Image.network(trail.imageUrl!, fit: BoxFit.cover)
+                    : Container(
+                        color: Colors.grey[400], 
+                        child: const Icon(Icons.terrain, size: 50, color: Colors.white)
+                      ),
+              ),
             ),
             backgroundColor: const Color(0xFF2E7D32),
             foregroundColor: Colors.white,
@@ -29,17 +43,29 @@ class TrailDetailsPage extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStat(Icons.straighten, "3.5 km", "Distance"),
-                        _buildStat(Icons.terrain, "200 m", "Elevation"),
-                        _buildStat(Icons.wb_sunny, "Clear", "Weather"),
+                        _buildStat(Icons.straighten, "${trail.distanceKm} km", "Distance"),
+                        _buildStat(Icons.terrain, "${trail.elevationM} m", "Elevation"),
+                        _buildStat(Icons.auto_graph, trail.difficulty, "Difficulty"),
                       ],
                     ),
                     const SizedBox(height: 32),
                     const Text("About this Trail", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
-                    const Text(
-                      "Located in the heart of Kuala Terengganu, Bukit Besar offers a refreshing escape with a panoramic view of the city and the Drawbridge. Perfect for beginner hikers.",
-                      style: TextStyle(color: Colors.black87, height: 1.5),
+                    Text(
+                      trail.description,
+                      style: const TextStyle(color: Colors.black87, height: 1.5),
+                    ),
+                    const SizedBox(height: 24),
+                    const Text("Features", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 4,
+                      children: trail.features.map((feature) => Chip(
+                        label: Text(feature, style: const TextStyle(fontSize: 12)),
+                        backgroundColor: Colors.green.withOpacity(0.1),
+                        side: BorderSide.none,
+                      )).toList(),
                     ),
                     const SizedBox(height: 40),
                     ElevatedButton(
