@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
+import 'services/weather_service.dart'; // Ensure this path is correct
 
-class WeatherSafetyPage extends StatelessWidget {
+class WeatherSafetyPage extends StatefulWidget {
   const WeatherSafetyPage({super.key});
+
+  @override
+  State<WeatherSafetyPage> createState() => _WeatherSafetyPageState();
+}
+
+class _WeatherSafetyPageState extends State<WeatherSafetyPage> {
+  final WeatherService _weatherService = WeatherService();
 
   @override
   Widget build(BuildContext context) {
@@ -11,39 +19,85 @@ class WeatherSafetyPage extends StatelessWidget {
         backgroundColor: const Color(0xFF2E7D32),
         foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.green[50],
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.green.shade200),
-              ),
-              child: Column(
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.green, size: 64),
-                  const SizedBox(height: 16),
-                  const Text("Condition: Optimal", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.green)),
-                  const SizedBox(height: 8),
-                  Text(
-                    "Terengganu trails are currently safe for hiking. No active weather warnings.",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.green[900]),
-                  ),
-                ],
-              ),
+      body: FutureBuilder<Map<String, dynamic>>(
+        // Defaulting to Kuala Terengganu as the general safety indicator
+        future: _weatherService.getWeather("Kuala Terengganu"),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(color: Color(0xFF2E7D32)));
+          }
+
+          if (snapshot.hasError || !snapshot.hasData) {
+            return const Center(child: Text("Unable to load live safety data."));
+          }
+
+          final data = snapshot.data!;
+          final mainWeather = data['weather'][0]['main'];
+          final temp = data['main']['temp'].round();
+          final humidity = data['main']['humidity'];
+          final windSpeed = (data['wind']['speed'] * 3.6).toStringAsFixed(1); // Convert m/s to km/h
+
+          // Simple logic for safety status
+          bool isSafe = mainWeather.toLowerCase() != 'rain' && mainWeather.toLowerCase() != 'thunderstorm';
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                _buildStatusCard(isSafe, mainWeather),
+                const SizedBox(height: 30),
+                _buildSafetyItem("Temperature", "$temp°C", Icons.thermostat, Colors.orange),
+                _buildSafetyItem("Humidity", "$humidity%", Icons.water_drop, Colors.blue),
+                _buildSafetyItem("Main Condition", mainWeather, Icons.cloud, Colors.blueGrey),
+                _buildSafetyItem("Wind Speed", "$windSpeed km/h", Icons.air, Colors.grey),
+                const SizedBox(height: 20),
+                const Text(
+                  "Data provided by OpenWeatherMap. Always check local trail conditions before starting your hike.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
             ),
-            const SizedBox(height: 30),
-            _buildSafetyItem("Temperature", "30°C", Icons.thermostat, Colors.orange),
-            _buildSafetyItem("Humidity", "75%", Icons.water_drop, Colors.blue),
-            _buildSafetyItem("UV Index", "Moderate", Icons.wb_sunny, Colors.yellow[800]!),
-            _buildSafetyItem("Wind Speed", "10 km/h", Icons.air, Colors.grey),
-          ],
-        ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildStatusCard(bool isSafe, String condition) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isSafe ? Colors.green[50] : Colors.red[50],
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: isSafe ? Colors.green.shade200 : Colors.red.shade200),
+      ),
+      child: Column(
+        children: [
+          Icon(
+            isSafe ? Icons.check_circle : Icons.warning,
+            color: isSafe ? Colors.green : Colors.red,
+            size: 64,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            isSafe ? "Condition: Optimal" : "Condition: Caution",
+            style: TextStyle(
+              fontSize: 22, 
+              fontWeight: FontWeight.bold, 
+              color: isSafe ? Colors.green : Colors.red
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isSafe 
+              ? "Terengganu trails are currently safe for hiking. No active weather warnings."
+              : "Warning: $condition detected. Trails may be slippery or dangerous. Hike with caution.",
+            textAlign: TextAlign.center,
+            style: TextStyle(color: isSafe ? Colors.green[900] : Colors.red[900]),
+          ),
+        ],
       ),
     );
   }
@@ -51,7 +105,11 @@ class WeatherSafetyPage extends StatelessWidget {
   Widget _buildSafetyItem(String title, String value, IconData icon, Color color) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade200),
+      ),
       child: ListTile(
         leading: Icon(icon, color: color),
         title: Text(title),

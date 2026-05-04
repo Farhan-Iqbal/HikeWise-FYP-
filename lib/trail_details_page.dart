@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'map_screen.dart';
-import 'models/trail_model.dart'; // Ensure this path is correct
+import 'trail_map_page.dart'; // Updated to point to your new OSM page
+import 'models/trail_model.dart';
 
 class TrailDetailsPage extends StatelessWidget {
-  final Trail trail; // This captures the trail passed from HomePage
+  final Trail trail;
 
   const TrailDetailsPage({super.key, required this.trail});
 
@@ -17,16 +17,20 @@ class TrailDetailsPage extends StatelessWidget {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               title: Text(
-                trail.name, 
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+                trail.name,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  shadows: [Shadow(blurRadius: 10, color: Colors.black45)],
+                ),
               ),
               background: Hero(
                 tag: 'trail-image-${trail.id}',
                 child: trail.imageUrl != null
                     ? Image.network(trail.imageUrl!, fit: BoxFit.cover)
                     : Container(
-                        color: Colors.grey[400], 
-                        child: const Icon(Icons.terrain, size: 50, color: Colors.white)
+                        color: Colors.grey[400],
+                        child: const Icon(Icons.terrain, size: 50, color: Colors.white),
                       ),
               ),
             ),
@@ -40,6 +44,7 @@ class TrailDetailsPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Statistics Row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
@@ -49,12 +54,37 @@ class TrailDetailsPage extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 32),
+
+                    // Location section with quick map access
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Location", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                            Text("${trail.district}, Terengganu", style: const TextStyle(color: Colors.grey)),
+                          ],
+                        ),
+                        IconButton.filledTonal(
+                          onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => TrailMapPage(trail: trail)),
+                          ),
+                          icon: const Icon(Icons.map_outlined),
+                          style: IconButton.styleFrom(foregroundColor: const Color(0xFF2E7D32)),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 24),
                     const Text("About this Trail", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
                     Text(
                       trail.description,
-                      style: const TextStyle(color: Colors.black87, height: 1.5),
+                      style: const TextStyle(color: Colors.black87, height: 1.5, fontSize: 15),
                     ),
+
                     const SizedBox(height: 24),
                     const Text("Features", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 8),
@@ -65,22 +95,31 @@ class TrailDetailsPage extends StatelessWidget {
                         label: Text(feature, style: const TextStyle(fontSize: 12)),
                         backgroundColor: Colors.green.withOpacity(0.1),
                         side: BorderSide.none,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                       )).toList(),
                     ),
+                    
                     const SizedBox(height: 40),
-                    ElevatedButton(
+                    
+                    // Main action button
+                    ElevatedButton.icon(
                       onPressed: () => Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const MapScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => TrailMapPage(trail: trail),
+                        ),
                       ),
+                      icon: const Icon(Icons.navigation),
+                      label: const Text("Start Hiking / View Map", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF2E7D32),
                         foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 55),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        minimumSize: const Size(double.infinity, 60),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        elevation: 2,
                       ),
-                      child: const Text("Start Hiking", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
+                    const SizedBox(height: 20),
                   ],
                 ),
               ),

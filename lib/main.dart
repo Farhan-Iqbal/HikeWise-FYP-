@@ -8,7 +8,6 @@ import 'main_navigation_wrapper.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Supabase with your project credentials
   await Supabase.initialize(
     url: 'https://lwkgsofcmfjdkdfabxnn.supabase.co',
     anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3a2dzb2ZjbWZqZGtkZmFieG5uIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyNjA1MjksImV4cCI6MjA5MjgzNjUyOX0.95AnVOTybQpwOuE1vwA0bCs6B-IMYJFrZRBUo0BcqAM',
@@ -33,7 +32,7 @@ class HikeWiseApp extends StatelessWidget {
         ),
         textTheme: GoogleFonts.robotoTextTheme(),
       ),
-      // The home now points to our Auth Checker logic
+      // The home now points to Auth Checker logic
       home: const AuthChecker(),
     );
   }
@@ -56,7 +55,7 @@ class _AuthCheckerState extends State<AuthChecker> {
     _countDown();
   }
 
-  // We keep your splash screen behavior for 3 seconds to show the branding
+  // Keep splash screen behavior for 3 seconds to show the branding
   void _countDown() async {
     await Future.delayed(const Duration(seconds: 3));
     if (mounted) {
