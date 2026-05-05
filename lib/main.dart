@@ -4,6 +4,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'splash_screen.dart';
 import 'login_page.dart';
 import 'main_navigation_wrapper.dart';
+import 'screens/health_questionnaire_screen.dart';
+import 'services/database_service.dart';
+import 'dart:async';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,19 +29,20 @@ class HikeWiseApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF2E7D32),
-          primary: const Color(0xFF2E7D32),
-        ),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF2E7D32)),
         textTheme: GoogleFonts.robotoTextTheme(),
       ),
-      // The home now points to Auth Checker logic
-      home: const AuthChecker(),
+      // CRITICAL: AuthChecker must be the initial 'home'
+      home: const AuthChecker(), 
+      routes: {
+        '/login': (context) => const LoginPage(),
+        '/health_questionnaire': (context) => HealthQuestionnaireScreen(),
+        '/home': (context) => const MainNavigationWrapper(),
+      },
     );
   }
 }
 
-/// This widget determines if the user should see the Login Page or the Main App
 class AuthChecker extends StatefulWidget {
   const AuthChecker({super.key});
 
@@ -47,40 +51,42 @@ class AuthChecker extends StatefulWidget {
 }
 
 class _AuthCheckerState extends State<AuthChecker> {
-  bool _showSplash = true;
+  final _dbService = DatabaseService();
 
   @override
   void initState() {
     super.initState();
-    _countDown();
+    _checkSession();
   }
 
-  // Keep splash screen behavior for 3 seconds to show the branding
-  void _countDown() async {
+  Future<void> _checkSession() async {
+    // 1. Wait for splash (3 seconds)
     await Future.delayed(const Duration(seconds: 3));
-    if (mounted) {
-      setState(() {
-        _showSplash = false;
-      });
+
+    // 2. Get current session immediately
+    final session = Supabase.instance.client.auth.currentSession;
+
+    if (!mounted) return;
+
+    if (session != null) {
+      // 3. User is logged in, check if profile is done
+      final hasProfile = await _dbService.hasCompletedProfile();
+      if (mounted) {
+        if (hasProfile) {
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          Navigator.pushReplacementNamed(context, '/health_questionnaire');
+        }
+      }
+    } else {
+      // 4. No session, go to login
+      Navigator.pushReplacementNamed(context, '/login');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // 1. Show Splash Screen first for the branding experience
-    if (_showSplash) {
-      return const SplashScreen();
-    }
-
-    // 2. Once splash is done, check the Supabase session
-    final session = Supabase.instance.client.auth.currentSession;
-
-    if (session != null) {
-      // User is already logged in (Persistence)
-      return const MainNavigationWrapper();
-    } else {
-      // User needs to sign in
-      return const LoginPage();
-    }
+    // Always show splash while checking
+    return const SplashScreen();
   }
 }
